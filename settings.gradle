@@ -1,4 +1,5 @@
 rootProject.name = 'deep-dota'
 include 'core'
 include 'open-dota'
+include 'mongo'
 

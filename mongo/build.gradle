@@ -1,0 +1,25 @@
+plugins {
+    id 'java-library'
+}
+
+group 'io.github.eziomou'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':core')
+
+    api 'org.mongodb:mongodb-driver-reactivestreams:4.1.1'
+
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+test {
+    useJUnitPlatform()
+}
