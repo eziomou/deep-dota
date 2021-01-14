@@ -1,2 +1,3 @@
 rootProject.name = 'deep-dota'
+include 'core'
 
