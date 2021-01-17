@@ -13,25 +13,24 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 import java.io.File;
 import java.io.IOException;
 
-public final class Model130 implements Model<MultiLayerNetwork> {
+public final class Model10X10 implements Model {
 
-    private static final int INPUTS_NUMBER = 130;
-    private static final int OUTPUTS_NUMBER = 2;
-    private static final double LEARNING_RATE = 1e-3;
-    private static final double L2_RATIO = 1e-4;
+    static final int INPUTS_NUMBER = 10 * 10;
+    static final int OUTPUTS_NUMBER = 2;
+    static final double LEARNING_RATE = 1e-3;
+    static final double L2_RATIO = 1e-4;
 
     private final MultiLayerNetwork network;
 
-    public Model130() {
+    public Model10X10() {
         this.network = new MultiLayerNetwork(getConfiguration());
         this.network.init();
     }
 
-    public Model130(File file) throws IOException {
+    public Model10X10(File file) throws IOException {
         this.network = MultiLayerNetwork.load(file, true);
     }
 
-    @Override
     public MultiLayerNetwork getNetwork() {
         return network;
     }
@@ -41,7 +40,7 @@ public final class Model130 implements Model<MultiLayerNetwork> {
                 .seed(123)
                 .updater(new Adam(LEARNING_RATE))
                 .l2(L2_RATIO)
-                .activation(Activation.RELU)
+                .activation(Activation.TANH)
                 .weightInit(WeightInit.XAVIER)
                 .list()
                 .layer(new DenseLayer.Builder()
@@ -50,10 +49,10 @@ public final class Model130 implements Model<MultiLayerNetwork> {
                         .build())
                 .layer(new DenseLayer.Builder()
                         .nIn(20)
-                        .nOut(20)
+                        .nOut(10)
                         .build())
                 .layer(new OutputLayer.Builder()
-                        .nIn(20)
+                        .nIn(10)
                         .nOut(OUTPUTS_NUMBER)
                         .activation(Activation.SIGMOID)
                         .lossFunction(LossFunctions.LossFunction.XENT)

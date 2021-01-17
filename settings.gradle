@@ -3,4 +3,5 @@ include 'core'
 include 'open-dota'
 include 'mongo'
 include 'example'
+include 'web-api'
 

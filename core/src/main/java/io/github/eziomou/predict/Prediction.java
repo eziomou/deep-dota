@@ -2,9 +2,9 @@ package io.github.eziomou.predict;
 
 public interface Prediction {
 
-    double getRadiantWinProbability();
+    double getRadiant();
 
-    double getDireWinProbability();
+    double getDire();
 
     static Prediction create(double radiantWinProbability, double direWinProbability) {
         return new PredictionImpl(radiantWinProbability, direWinProbability);

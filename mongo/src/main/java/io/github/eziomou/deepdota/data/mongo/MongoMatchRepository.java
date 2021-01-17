@@ -6,7 +6,7 @@ import com.mongodb.reactivestreams.client.MongoDatabase;
 import io.github.eziomou.data.Match;
 import io.github.eziomou.data.MatchReadRepository;
 import io.github.eziomou.data.MatchWriteRepository;
-import io.github.eziomou.data.Player;
+import io.github.eziomou.data.Synchronizer;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Observable;
 import org.bson.Document;
@@ -15,12 +15,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.gt;
-import static com.mongodb.client.model.Filters.lt;
 
-public final class MongoMatchRepository implements MatchWriteRepository, MatchReadRepository {
+public final class MongoMatchRepository implements MatchWriteRepository, MatchReadRepository,
+        Synchronizer<MatchReadRepository> {
 
     private final MongoCollection<Document> matches;
-    private final PlayerMapper playerMapper = new PlayerMapper();
 
     public MongoMatchRepository(MongoDatabase database) {
         this.matches = database.getCollection("matches");
@@ -37,33 +36,13 @@ public final class MongoMatchRepository implements MatchWriteRepository, MatchRe
         Document document = new Document();
         document.put("matchId", match.getMatchId());
         document.put("radiantWin", match.isRadiantWin());
-        document.put("radiant", asDocuments(match.getRadiant()));
-        document.put("dire", asDocuments(match.getDire()));
         return document;
-    }
-
-    private List<Document> asDocuments(List<Player> players) {
-        return  players.stream()
-                .map(playerMapper::mapToDocument)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Observable<Match> findAllDesc() {
-        return Observable.fromPublisher(matches.find().sort(Sorts.descending("matchId")))
-                .map(this::asMatch);
-    }
-
-    @Override
-    public Observable<Match> findAllBelowId(long matchId) {
-        return Observable.fromPublisher(matches.find(lt("matchId", matchId))
-                .sort(Sorts.descending("matchId")))
-                .map(this::asMatch);
     }
 
     @Override
     public Observable<Match> findAllAsc() {
-        return Observable.fromPublisher(matches.find().sort(Sorts.descending("matchId")))
+        return Observable.fromPublisher(matches.find()
+                .sort(Sorts.ascending("matchId")))
                 .map(this::asMatch);
     }
 
@@ -76,14 +55,11 @@ public final class MongoMatchRepository implements MatchWriteRepository, MatchRe
 
     private Match asMatch(Document document) {
         return new Match(document.getLong("matchId"),
-                document.getBoolean("radiantWin"),
-                asPlayers(document.getList("radiant", Document.class)),
-                asPlayers(document.getList("dire", Document.class)));
+                document.getBoolean("radiantWin"));
     }
 
-    private List<Player> asPlayers(List<Document> documents) {
-        return documents.stream()
-                .map(playerMapper::mapToPlayer)
-                .collect(Collectors.toList());
+    @Override
+    public Completable synchronize(MatchReadRepository source) {
+        return source.findAllAsc().toList().concatMapCompletable(this::saveAll);
     }
 }

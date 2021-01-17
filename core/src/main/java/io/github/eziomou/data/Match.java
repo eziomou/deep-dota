@@ -1,30 +1,51 @@
 package io.github.eziomou.data;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
-public final class Match extends MatchInfo {
+public class Match {
 
-    private final List<Player> radiant;
-    private final List<Player> dire;
+    private final long matchId;
+    private final boolean radiantWin;
 
-    public Match(long matchId, boolean radiantWin, List<Player> radiant, List<Player> dire) {
-        super(matchId, radiantWin);
-        this.radiant = radiant;
-        this.dire = dire;
+    public Match(long matchId, boolean radiantWin) {
+        this.matchId = matchId;
+        this.radiantWin = radiantWin;
     }
 
-    public List<Player> getRadiant() {
-        return radiant;
+    public long getMatchId() {
+        return matchId;
     }
 
-    public List<Player> getDire() {
-        return dire;
+    public boolean isRadiantWin() {
+        return radiantWin;
     }
 
-    public List<Player> getPlayers() {
-        List<Player> players = new ArrayList<>(radiant);
-        players.addAll(dire);
-        return players;
+    public boolean isWinner(PlayerMatch player) {
+        return radiantWin == player.isRadiant();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        Match other = (Match) object;
+        return matchId == other.matchId && radiantWin == other.radiantWin;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(matchId, radiantWin);
+    }
+
+    @Override
+    public String toString() {
+        return "Match{" +
+                "matchId=" + matchId +
+                ", radiantWin=" + radiantWin +
+                '}';
     }
 }
