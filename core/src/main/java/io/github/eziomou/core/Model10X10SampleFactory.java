@@ -1,12 +1,13 @@
 package io.github.eziomou.core;
 
-import io.github.eziomou.data.FullMatch;
-import io.github.eziomou.data.PlayerMatch;
+import io.github.eziomou.data.FullPublicMatch;
+import io.github.eziomou.data.PublicPlayerMatch;
+import io.github.eziomou.data.Team;
 import io.reactivex.rxjava3.core.Single;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
-public class Model10X10SampleFactory implements SampleFactory<FullMatch, INDArray> {
+public class Model10X10SampleFactory implements SampleFactory<FullPublicMatch, INDArray> {
 
     private final StatsService statsService;
 
@@ -15,11 +16,11 @@ public class Model10X10SampleFactory implements SampleFactory<FullMatch, INDArra
     }
 
     @Override
-    public Single<INDArray> create(FullMatch match) {
+    public Single<INDArray> create(FullPublicMatch match) {
         return statsService.getStats().map(stats -> {
             INDArray sample = Nd4j.zeros(10, 10);
             match.getPlayers().forEach(p1 -> match.getPlayers().forEach(p2 -> {
-                INDArray source = isSameTeam(p1, p2) ? stats.getSynergyMatrix() : stats.getCounterMatrix();
+                INDArray source = Team.isSameTeam(p1, p2) ? stats.getSynergyMatrix() : stats.getCounterMatrix();
                 double ratio = source.getDouble(p1.getHeroId() - 1, p2.getHeroId() - 1);
                 sample.putScalar(getOffset(p1) + p1.getPosition(), getOffset(p2) + p2.getPosition(), ratio);
             }));
@@ -27,15 +28,11 @@ public class Model10X10SampleFactory implements SampleFactory<FullMatch, INDArra
         });
     }
 
-    private boolean isSameTeam(PlayerMatch first, PlayerMatch second) {
-        return first.isRadiant() == second.isRadiant();
-    }
-
-    private int getOffset(PlayerMatch player) {
+    private int getOffset(PublicPlayerMatch player) {
         return player.isRadiant() ? 0 : 5;
     }
 
-    private INDArray getLabel(FullMatch match) {
+    private INDArray getLabel(FullPublicMatch match) {
         return match.isRadiantWin() ? Nd4j.ones(1) : Nd4j.zeros(1);
     }
 }

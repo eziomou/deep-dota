@@ -2,7 +2,7 @@ package io.github.eziomou.data;
 
 import io.reactivex.rxjava3.core.Completable;
 
-public interface Synchronizer<S> {
+public interface Synchronizer<T> {
 
-    Completable synchronize(S source);
+    Completable synchronize(T source);
 }

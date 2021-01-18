@@ -6,5 +6,5 @@ public interface MatchReadRepository {
 
     Observable<Match> findAllAsc();
 
-    Observable<Match> findAllAboveId(long matchId);
+    Observable<Match> findAllAscAboveId(long matchId);
 }

@@ -28,8 +28,8 @@ public final class Model10X10Predictor implements Predictor {
     public Single<Prediction> predict(List<? extends Hero> radiant, List<? extends Hero> dire) {
         return statsService.getStats()
                 .map(stats -> {
-                    INDArray inputs = createInput(radiant, dire, stats.getSynergyMatrix(), stats.getCounterMatrix());
-                    INDArray output = model.getNetwork().output(inputs);
+                    INDArray input = createInput(radiant, dire, stats.getSynergyMatrix(), stats.getCounterMatrix());
+                    INDArray output = model.getNetwork().output(input);
                     return Prediction.create(output.getDouble(0, 1), output.getDouble(0, 0));
                 })
                 .subscribeOn(Schedulers.single());
@@ -44,6 +44,9 @@ public final class Model10X10Predictor implements Predictor {
             for (int j = 0; j < 10; j++) {
                 INDArray source = (i < 5 && j < 5 || i >= 5 && j >= 5) ? synergyMatrix : counterMatrix;
                 double ratio = source.getDouble(heroes.get(i).getId() - 1, heroes.get(j).getId() - 1);
+                if (Double.isNaN(ratio)) {
+                    ratio = 0.5;
+                }
                 input10X10.putScalar(i, j, ratio);
             }
         }

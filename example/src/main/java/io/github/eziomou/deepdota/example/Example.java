@@ -4,11 +4,13 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import io.github.eziomou.core.*;
-import io.github.eziomou.data.CsvSampleWriter;
-import io.github.eziomou.data.FullMatch;
-import io.github.eziomou.data.FullMatchRepository;
-import io.github.eziomou.data.SampleWriter;
+import io.github.eziomou.data.*;
 import io.github.eziomou.deepdota.data.mongo.MongoFullMatchRepository;
+import io.github.eziomou.deepdota.data.mongo.MongoFullPublicMatchRepository;
+import io.github.eziomou.deepdota.data.mongo.MongoPublicMatchRepository;
+import io.github.eziomou.deepdota.data.mongo.MongoPublicPlayerMatchRepository;
+import io.github.eziomou.deepdota.data.opendota.OpenDotaPublicMatchRepository;
+import io.github.eziomou.deepdota.data.opendota.OpenDotaPublicPlayerMatchRepository;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -17,10 +19,14 @@ import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.model.stats.StatsListener;
 import org.deeplearning4j.ui.model.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
 public class Example {
+
+    private static final Logger log = LoggerFactory.getLogger(Example.class);
 
     private static final String TRAIN_DATA_PATH = "example/src/main/resources/train-data.csv";
     private static final String TEST_DATA_PATH = "example/src/main/resources/test-data.csv";
@@ -33,36 +39,60 @@ public class Example {
     private final MongoClient mongoClient = MongoClients.create();
     private final MongoDatabase mongoDatabase = mongoClient.getDatabase("dota");
 
-    private static final long id = 5769920592L;
-
     private final FullMatchRepository fullMatchRepository = new MongoFullMatchRepository(mongoDatabase);
-    private final StatsService statsService = new StatsService(fullMatchRepository.findAllDescBelowId(id).take(50_000));
-    private final SampleFactory<FullMatch, INDArray> factory = new Model10X10SampleFactory(statsService);
+    private final FullPublicMatchRepository fullPublicMatchRepository = new MongoFullPublicMatchRepository(mongoDatabase);
+
+    private final StatsService statsService = new StatsService(fullPublicMatchRepository.findAllAsc().take(50_000));
+    private final SampleFactory<FullPublicMatch, INDArray> factory = new Model10X10SampleFactory(statsService);
 
     public static void main(String[] args) {
         Example example = new Example();
-        example.createData().andThen(example.train()).blockingSubscribe();
+//        example.fetchPublicMatches().blockingSubscribe();
+//        example.fetchPublicPlayerMatches().blockingSubscribe();
+//        example.createData().blockingSubscribe();
+        example.train().blockingSubscribe();
+    }
+
+    private Completable fetchPublicMatches() {
+        PublicMatchReadRepository in = new OpenDotaPublicMatchRepository();
+        PublicMatchWriteRepository out = new MongoPublicMatchRepository(mongoDatabase);
+        return in.findAllDescBelowId(5792224709L)
+                .take(1_000_000)
+                .buffer(200_000)
+                .doOnNext(matches -> log.info("Storing {} public matches", matches.size()))
+                .flatMapCompletable(out::saveAll);
+    }
+
+    private Completable fetchPublicPlayerMatches() {
+        PublicPlayerMatchReadRepository in = new OpenDotaPublicPlayerMatchRepository();
+        PublicPlayerMatchWriteRepository out = new MongoPublicPlayerMatchRepository(mongoDatabase);
+        return in.findAllDescBelowId(5792224709L)
+                .take(10_000_000)
+                .buffer(200_000)
+                .doOnNext(matches -> log.info("Storing {} public player matches", matches.size()))
+                .flatMapCompletable(out::saveAll);
     }
 
     private Completable createData() {
-        return Completable.mergeArray(
-                createTrainData()
-                        .doOnComplete(() -> System.out.println("train complete"))
-                        .subscribeOn(Schedulers.io()),
-                createTestData()
-                        .doOnComplete(() -> System.out.println("test complete"))
-                        .subscribeOn(Schedulers.io())
-        );
+        return Completable.mergeArray(createTrainData(), createTestData());
     }
 
     private Completable createTrainData() {
         SampleWriter<INDArray> writer = new CsvSampleWriter(new File(TRAIN_DATA_PATH));
-        return writer.write(fullMatchRepository.findAllDescBelowId(id).take(50_000).flatMapSingle(factory::create));
+        return writer.write(fullPublicMatchRepository.findAllAsc()
+                .take(50_000)
+                .flatMapSingle(factory::create))
+                .doOnComplete(() -> log.info("Created training data"))
+                .subscribeOn(Schedulers.io());
     }
 
     private Completable createTestData() {
         SampleWriter<INDArray> writer = new CsvSampleWriter(new File(TEST_DATA_PATH));
-        return writer.write(fullMatchRepository.findAllAscAboveId(id).take(1_000).flatMapSingle(factory::create));
+        return writer.write(fullPublicMatchRepository.findAllDesc()
+                .take(10_000)
+                .flatMapSingle(factory::create))
+                .doOnComplete(() -> log.info("Created test data"))
+                .subscribeOn(Schedulers.io());
     }
 
     public Completable train() {

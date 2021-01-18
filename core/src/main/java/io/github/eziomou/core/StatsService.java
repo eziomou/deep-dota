@@ -1,7 +1,7 @@
 package io.github.eziomou.core;
 
-import io.github.eziomou.data.FullMatch;
-import io.github.eziomou.data.PlayerMatch;
+import io.github.eziomou.data.FullPublicMatch;
+import io.github.eziomou.data.Team;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.subjects.SingleSubject;
@@ -12,12 +12,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StatsService {
 
-    private final Observable<FullMatch> matches;
+    private final Observable<? extends FullPublicMatch> matches;
 
     private final SingleSubject<Stats> subject = SingleSubject.create();
     private final AtomicBoolean requested = new AtomicBoolean(false);
 
-    public StatsService(Observable<FullMatch> matches) {
+    public StatsService(Observable<? extends FullPublicMatch> matches) {
         this.matches = matches;
     }
 
@@ -30,7 +30,7 @@ public class StatsService {
         });
     }
 
-    public static Single<Stats> createAdvantageMatrices(Observable<FullMatch> matches) {
+    public static Single<Stats> createAdvantageMatrices(Observable<? extends FullPublicMatch> matches) {
         return matches.collect(StatsAccumulator::new, StatsAccumulator::add).map(StatsAccumulator::create);
     }
 
@@ -46,10 +46,10 @@ public class StatsService {
         private final INDArray counterWins = Nd4j.zeros(MAX_HERO_ID, MAX_HERO_ID);
         private final INDArray counterLosses = Nd4j.zeros(MAX_HERO_ID, MAX_HERO_ID);
 
-        void add(FullMatch match) {
+        void add(FullPublicMatch match) {
             match.getPlayers().forEach(p1 -> match.getPlayers().forEach(p2 -> {
                 INDArray source;
-                if (isSameTeam(p1, p2)) {
+                if (Team.isSameTeam(p1, p2)) {
                     source = match.isWinner(p1) ? synergyWins : synergyLosses;
                 } else {
                     source = match.isWinner(p1) ? counterWins : counterLosses;
@@ -57,10 +57,6 @@ public class StatsService {
                 double value = source.getDouble(p1.getHeroId() - 1, p2.getHeroId() - 1);
                 source.putScalar(p1.getHeroId() - 1, p2.getHeroId() - 1, value + 1);
             }));
-        }
-
-        private static boolean isSameTeam(PlayerMatch first, PlayerMatch second) {
-            return first.isRadiant() == second.isRadiant();
         }
 
         private Stats create() {

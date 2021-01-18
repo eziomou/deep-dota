@@ -50,7 +50,7 @@ public final class MongoPlayerMatchRepository implements PlayerMatchWriteReposit
     }
 
     @Override
-    public Observable<PlayerMatch> findAllAboveId(long matchId) {
+    public Observable<PlayerMatch> findAllAscAboveId(long matchId) {
         return Observable.fromPublisher(playerMatches.find(gt("matchId", matchId))
                 .sort(Sorts.ascending("matchId")))
                 .map(playerMatchMapper::asPlayerMatch);

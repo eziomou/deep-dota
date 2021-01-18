@@ -16,7 +16,7 @@ public final class Statistics {
         INDArray wins = Nd4j.zeros(MAX_HERO_ID, MAX_HERO_ID);
         INDArray loses = Nd4j.zeros(MAX_HERO_ID, MAX_HERO_ID);
         matches.forEach(match -> match.getPlayers().forEach(p1 -> match.getPlayers().stream()
-                .filter(p2 -> !isSameTeam(p1, p2))
+                .filter(p2 -> !Team.isSameTeam(p1, p2))
                 .forEach(p2 -> {
                     INDArray target = match.isWinner(p1) ? wins : loses;
                     double value = target.getDouble(p1.getHeroId() - 1, p2.getHeroId() - 1);
@@ -29,16 +29,12 @@ public final class Statistics {
         INDArray wins = Nd4j.zeros(MAX_HERO_ID, MAX_HERO_ID);
         INDArray loses = Nd4j.zeros(MAX_HERO_ID, MAX_HERO_ID);
         matches.forEach(match -> match.getPlayers().forEach(p1 -> match.getPlayers().stream()
-                .filter(p2 -> isSameTeam(p1, p2))
+                .filter(p2 -> Team.isSameTeam(p1, p2))
                 .forEach(p2 -> {
                     INDArray target = match.isWinner(p1) ? wins : loses;
                     double value = target.getDouble(p1.getHeroId() - 1, p2.getHeroId() - 1);
                     target.putScalar(p1.getHeroId() - 1, p2.getHeroId() - 1, value + 1);
                 })));
         return wins.div(wins.add(loses));
-    }
-
-    private static boolean isSameTeam(PlayerMatch first, PlayerMatch second) {
-        return first.isRadiant() == second.isRadiant();
     }
 }

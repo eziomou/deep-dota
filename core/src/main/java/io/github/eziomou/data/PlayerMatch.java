@@ -3,42 +3,17 @@ package io.github.eziomou.data;
 import java.util.Objects;
 
 
-public class PlayerMatch {
+public class PlayerMatch extends PublicPlayerMatch {
 
-    private final long matchId;
     private final long accountId;
-    private final int playerSlot;
-    private final int heroId;
 
     public PlayerMatch(long matchId, long accountId, int playerSlot, int heroId) {
-        this.matchId = matchId;
+        super(matchId, playerSlot, heroId);
         this.accountId = accountId;
-        this.playerSlot = playerSlot;
-        this.heroId = heroId;
-    }
-
-    public long getMatchId() {
-        return matchId;
     }
 
     public long getAccountId() {
         return accountId;
-    }
-
-    public int getPlayerSlot() {
-        return playerSlot;
-    }
-
-    public int getHeroId() {
-        return heroId;
-    }
-
-    public boolean isRadiant() {
-        return (playerSlot & 128) == 0;
-    }
-
-    public int getPosition() {
-        return playerSlot & 7;
     }
 
     @Override

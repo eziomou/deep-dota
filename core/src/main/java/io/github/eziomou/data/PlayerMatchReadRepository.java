@@ -6,5 +6,5 @@ public interface PlayerMatchReadRepository {
 
     Observable<PlayerMatch> findAllAsc();
 
-    Observable<PlayerMatch> findAllAboveId(long matchId);
+    Observable<PlayerMatch> findAllAscAboveId(long matchId);
 }

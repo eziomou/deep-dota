@@ -23,11 +23,11 @@ public final class OpenDotaPlayerMatchRepository implements PlayerMatchReadRepos
 
     @Override
     public Observable<PlayerMatch> findAllAsc() {
-        return findAllAboveId(0);
+        return findAllAscAboveId(0);
     }
 
     @Override
-    public Observable<PlayerMatch> findAllAboveId(long matchId) {
+    public Observable<PlayerMatch> findAllAscAboveId(long matchId) {
         return openDota.explorer("SELECT match_id, account_id, player_slot, hero_id" +
                 " FROM player_matches" +
                 " WHERE match_id > " + matchId +
@@ -35,7 +35,7 @@ public final class OpenDotaPlayerMatchRepository implements PlayerMatchReadRepos
                 " LIMIT " + limitPerRequest, this::asPlayerMatch)
                 .toList()
                 .flatMapObservable(players -> Observable.merge(Observable.fromIterable(players),
-                                OpenDota.last(players).flatMapObservable(p -> findAllAboveId(p.getMatchId()))));
+                                OpenDota.last(players).flatMapObservable(p -> findAllAscAboveId(p.getMatchId()))));
     }
 
     private PlayerMatch asPlayerMatch(JsonNode node) {

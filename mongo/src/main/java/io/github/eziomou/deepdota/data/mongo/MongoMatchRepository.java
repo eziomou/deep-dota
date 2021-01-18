@@ -47,7 +47,7 @@ public final class MongoMatchRepository implements MatchWriteRepository, MatchRe
     }
 
     @Override
-    public Observable<Match> findAllAboveId(long matchId) {
+    public Observable<Match> findAllAscAboveId(long matchId) {
         return Observable.fromPublisher(matches.find(gt("matchId", matchId))
                 .sort(Sorts.ascending("matchId")))
                 .map(this::asMatch);
