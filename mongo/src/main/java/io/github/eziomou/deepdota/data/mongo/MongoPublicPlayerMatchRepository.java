@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.gt;
+import static com.mongodb.client.model.Filters.lt;
 
 public final class MongoPublicPlayerMatchRepository implements PublicPlayerMatchWriteRepository, PublicPlayerMatchReadRepository,
         Synchronizer<PublicPlayerMatchReadRepository> {
@@ -65,7 +66,7 @@ public final class MongoPublicPlayerMatchRepository implements PublicPlayerMatch
 
     @Override
     public Observable<PublicPlayerMatch> findAllDescBelowId(long matchId) {
-        return Observable.fromPublisher(playerMatches.find(gt("matchId", matchId))
+        return Observable.fromPublisher(playerMatches.find(lt("matchId", matchId))
                 .sort(Sorts.descending("matchId")))
                 .map(playerMatchMapper::asPublicPlayerMatch);
     }

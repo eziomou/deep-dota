@@ -9,18 +9,18 @@ import org.nd4j.linalg.factory.Nd4j;
 
 public class Model10X10SampleFactory implements SampleFactory<FullPublicMatch, INDArray> {
 
-    private final StatsService statsService;
+    private final Advantage advantage;
 
-    public Model10X10SampleFactory(StatsService statsService) {
-        this.statsService = statsService;
+    public Model10X10SampleFactory(Advantage advantage) {
+        this.advantage = advantage;
     }
 
     @Override
     public Single<INDArray> create(FullPublicMatch match) {
-        return statsService.getStats().map(stats -> {
+        return Single.fromCallable(() -> {
             INDArray sample = Nd4j.zeros(10, 10);
             match.getPlayers().forEach(p1 -> match.getPlayers().forEach(p2 -> {
-                INDArray source = Team.isSameTeam(p1, p2) ? stats.getSynergyMatrix() : stats.getCounterMatrix();
+                INDArray source = Team.isSameTeam(p1, p2) ? advantage.getSynergyMatrix() : advantage.getCounterMatrix();
                 double ratio = source.getDouble(p1.getHeroId() - 1, p2.getHeroId() - 1);
                 sample.putScalar(getOffset(p1) + p1.getPosition(), getOffset(p2) + p2.getPosition(), ratio);
             }));

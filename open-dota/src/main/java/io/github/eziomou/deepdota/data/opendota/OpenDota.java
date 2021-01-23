@@ -16,6 +16,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public final class OpenDota {
@@ -33,6 +34,7 @@ public final class OpenDota {
                     URI uri = BASE_URI.resolve("?sql=" + encode(query));
                     return createRequest(uri);
                 })
+                .delay(5, TimeUnit.SECONDS)
                 .flatMap(this::send)
                 .flatMapObservable(json -> parseExplorerResponse(json, mapper));
     }

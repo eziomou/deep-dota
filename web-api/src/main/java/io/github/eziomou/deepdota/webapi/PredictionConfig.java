@@ -4,11 +4,12 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import io.github.eziomou.core.Model10X10;
-import io.github.eziomou.core.StatsService;
-import io.github.eziomou.data.FullMatchRepository;
-import io.github.eziomou.deepdota.data.mongo.MongoFullMatchRepository;
+import io.github.eziomou.core.Advantage;
+import io.github.eziomou.data.FullPublicMatchRepository;
+import io.github.eziomou.deepdota.data.mongo.MongoFullPublicMatchRepository;
 import io.github.eziomou.predict.Model10X10Predictor;
 import io.github.eziomou.predict.Predictor;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.serializer.NormalizerSerializer;
 import org.nd4j.linalg.dataset.api.preprocessor.serializer.StandardizeSerializerStrategy;
@@ -25,6 +26,8 @@ class PredictionConfig {
 
     private String modelPath;
     private String statisticsPath;
+    private String synergyMatrixPath;
+    private String counterMatrixPath;
 
     public String getModelPath() {
         return modelPath;
@@ -42,9 +45,25 @@ class PredictionConfig {
         this.statisticsPath = statisticsPath;
     }
 
+    public String getSynergyMatrixPath() {
+        return synergyMatrixPath;
+    }
+
+    public void setSynergyMatrixPath(String synergyMatrixPath) {
+        this.synergyMatrixPath = synergyMatrixPath;
+    }
+
+    public String getCounterMatrixPath() {
+        return counterMatrixPath;
+    }
+
+    public void setCounterMatrixPath(String counterMatrixPath) {
+        this.counterMatrixPath = counterMatrixPath;
+    }
+
     @Bean
     Model10X10 model(PredictionConfig config) throws IOException {
-        return new Model10X10(new File(config.modelPath));
+        return new Model10X10(MultiLayerNetwork.load(new File(config.modelPath), true));
     }
 
     @Bean
@@ -58,18 +77,18 @@ class PredictionConfig {
     }
 
     @Bean
-    FullMatchRepository fullMatchRepository(MongoDatabase mongoDatabase) {
-        return new MongoFullMatchRepository(mongoDatabase);
+    FullPublicMatchRepository fullPublicMatchRepository(MongoDatabase mongoDatabase) {
+        return new MongoFullPublicMatchRepository(mongoDatabase);
     }
 
     @Bean
-    Predictor predictor(Model10X10 model, DataNormalization normalizer, StatsService statsService) {
-        return new Model10X10Predictor(model, normalizer, statsService);
+    Predictor predictor(Model10X10 model, DataNormalization normalizer, Advantage advantage) {
+        return new Model10X10Predictor(model, normalizer, advantage);
     }
 
     @Bean
-    StatsService statsService(FullMatchRepository fullMatchRepository) {
-        return new StatsService(fullMatchRepository.findAllDesc().take(50_000));
+    Advantage statistics(PredictionConfig config) {
+        return Advantage.load(config.getSynergyMatrixPath(), config.getCounterMatrixPath());
     }
 
     @Bean

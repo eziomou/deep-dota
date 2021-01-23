@@ -6,10 +6,16 @@ public class PublicMatch {
 
     protected final long matchId;
     protected final boolean radiantWin;
+    private final int duration;
+    private final int lobbyType;
+    private final int gameMode;
 
-    public PublicMatch(long matchId, boolean radiantWin) {
+    public PublicMatch(long matchId, boolean radiantWin, int duration, int lobbyType, int gameMode) {
         this.matchId = matchId;
         this.radiantWin = radiantWin;
+        this.duration = duration;
+        this.lobbyType = lobbyType;
+        this.gameMode = gameMode;
     }
 
     public long getMatchId() {
@@ -24,6 +30,18 @@ public class PublicMatch {
         return radiantWin == player.isRadiant();
     }
 
+    public int getDuration() {
+        return duration;
+    }
+
+    public int getLobbyType() {
+        return lobbyType;
+    }
+
+    public int getGameMode() {
+        return gameMode;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -32,13 +50,13 @@ public class PublicMatch {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        PublicMatch other = (PublicMatch) object;
-        return matchId == other.matchId && radiantWin == other.radiantWin;
+        PublicMatch that = (PublicMatch) object;
+        return matchId == that.matchId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(matchId, radiantWin);
+        return Objects.hash(matchId);
     }
 
     @Override
@@ -46,6 +64,9 @@ public class PublicMatch {
         return "PublicMatch{" +
                 "matchId=" + matchId +
                 ", radiantWin=" + radiantWin +
+                ", duration=" + duration +
+                ", lobbyType=" + lobbyType +
+                ", gameMode=" + gameMode +
                 '}';
     }
 }

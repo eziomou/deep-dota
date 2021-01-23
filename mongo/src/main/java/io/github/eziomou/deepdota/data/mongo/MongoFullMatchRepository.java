@@ -13,9 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.mongodb.client.model.Aggregates.lookup;
-import static com.mongodb.client.model.Aggregates.match;
-import static com.mongodb.client.model.Aggregates.sort;
+import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 
 public final class MongoFullMatchRepository implements FullMatchRepository {
@@ -33,44 +31,50 @@ public final class MongoFullMatchRepository implements FullMatchRepository {
     public Observable<FullMatch> findAllAsc() {
         return Observable
                 .fromPublisher(matches.aggregate(List.of(
-                        lookup("playerMatches", "matchId", "matchId", "players"))))
-                .map(this::asFullMatch);
-    }
-
-    @Override
-    public Observable<FullMatch> findAllAscAboveId(long matchId) {
-        return Observable
-                .fromPublisher(matches.aggregate(List.of(
-                        match(gt("matchId", matchId)),
                         sort(Sorts.ascending("matchId")),
                         lookup("playerMatches", "matchId", "matchId", "players"))))
                 .map(this::asFullMatch);
     }
 
     @Override
+    public Observable<FullMatch> findAllAscAboveId(long matchId) {
+        return Observable.fromPublisher(matches.aggregate(List.of(
+                match(gt("matchId", matchId)),
+                sort(Sorts.ascending("matchId")),
+                lookup("playerMatches", "matchId", "matchId", "players"))))
+                .map(this::asFullMatch);
+    }
+
+    @Override
     public Observable<FullMatch> findAllDesc() {
-        return Observable
-                .fromPublisher(matches.aggregate(List.of(
-                        sort(Sorts.descending("matchId")),
-                        lookup("playerMatches", "matchId", "matchId", "players"))))
+        return Observable.fromPublisher(matches.aggregate(List.of(
+                sort(Sorts.descending("matchId")),
+                lookup("playerMatches", "matchId", "matchId", "players"))))
                 .map(this::asFullMatch);
     }
 
     @Override
     public Observable<FullMatch> findAllDescBelowId(long matchId) {
-        return Observable
-                .fromPublisher(matches.aggregate(List.of(
-                        match(lte("matchId", matchId)),
-                        sort(Sorts.descending("matchId")),
-                        lookup("playerMatches", "matchId", "matchId", "players"))))
+        return Observable.fromPublisher(matches.aggregate(List.of(
+                match(lt("matchId", matchId)),
+                sort(Sorts.descending("matchId")),
+                lookup("playerMatches", "matchId", "matchId", "players"))))
                 .map(this::asFullMatch);
     }
 
     private FullMatch asFullMatch(Document document) {
-        return new FullMatch(document.getLong("matchId"),
-                document.getBoolean("radiantWin"),
-                document.getList("players", Document.class).stream()
-                        .map(playerMatchMapper::asPlayerMatch)
-                        .collect(Collectors.toList()));
+        try {
+            return new FullMatch(document.getLong("matchId"),
+                    document.getBoolean("radiantWin"),
+                    document.getInteger("duration"),
+                    document.getInteger("lobbyType"),
+                    document.getInteger("gameMode"),
+                    document.getList("players", Document.class).stream()
+                            .map(playerMatchMapper::asPlayerMatch)
+                            .collect(Collectors.toList()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 }

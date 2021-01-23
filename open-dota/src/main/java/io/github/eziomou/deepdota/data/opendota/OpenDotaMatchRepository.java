@@ -28,7 +28,7 @@ public final class OpenDotaMatchRepository implements MatchReadRepository {
 
     @Override
     public Observable<Match> findAllAscAboveId(long matchId) {
-        return openDota.explorer("SELECT match_id, radiant_win" +
+        return openDota.explorer("SELECT match_id, radiant_win, duration, lobby_type, game_mode" +
                 " FROM matches" +
                 " WHERE match_id > " + matchId +
                 " ORDER BY match_id ASC" +
@@ -39,6 +39,7 @@ public final class OpenDotaMatchRepository implements MatchReadRepository {
     }
 
     private Match asMatch(JsonNode node) {
-        return new Match(node.get("match_id").asLong(), node.get("radiant_win").asBoolean());
+        return new Match(node.get("match_id").asLong(), node.get("radiant_win").asBoolean(),
+                node.get("duration").asInt(), node.get("lobby_type").asInt(), node.get("game_mode").asInt());
     }
 }

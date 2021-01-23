@@ -1,11 +1,12 @@
 package io.github.eziomou.deepdota.webapi;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PredictionRequest {
 
-    private List<Integer> radiant;
-    private List<Integer> dire;
+    private List<Integer> radiant = new ArrayList<>();
+    private List<Integer> dire = new ArrayList<>();
 
     public List<Integer> getRadiant() {
         return radiant;

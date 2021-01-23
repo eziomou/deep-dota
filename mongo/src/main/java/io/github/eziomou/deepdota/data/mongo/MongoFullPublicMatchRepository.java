@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Filters.gt;
-import static com.mongodb.client.model.Filters.lte;
+import static com.mongodb.client.model.Filters.*;
 
 public final class MongoFullPublicMatchRepository implements FullPublicMatchRepository {
 
@@ -31,38 +30,37 @@ public final class MongoFullPublicMatchRepository implements FullPublicMatchRepo
 
     @Override
     public Observable<FullPublicMatch> findAllAsc() {
-        return Observable
-                .fromPublisher(publicMatches.aggregate(List.of(
-                        lookupPublicPlayerMatches())))
+        return Observable.fromPublisher(publicMatches.aggregate(List.of(
+                //match(eq("lobbyType", 7)),
+                sort(Sorts.ascending("matchId")),
+                lookupPublicPlayerMatches())))
                 .map(this::asFullPublicMatch);
     }
 
     @Override
     public Observable<FullPublicMatch> findAllAscAboveId(long matchId) {
-        return Observable
-                .fromPublisher(publicMatches.aggregate(List.of(
-                        match(gt("matchId", matchId)),
-                        sort(Sorts.ascending("matchId")),
-                        lookupPublicPlayerMatches())))
+        return Observable.fromPublisher(publicMatches.aggregate(List.of(
+                match(gt("matchId", matchId)),
+                sort(Sorts.ascending("matchId")),
+                lookupPublicPlayerMatches())))
                 .map(this::asFullPublicMatch);
     }
 
     @Override
     public Observable<FullPublicMatch> findAllDesc() {
-        return Observable
-                .fromPublisher(publicMatches.aggregate(List.of(
-                        sort(Sorts.descending("matchId")),
-                        lookupPublicPlayerMatches())))
+        return Observable.fromPublisher(publicMatches.aggregate(List.of(
+                //match(eq("lobbyType", 7)),
+                sort(Sorts.descending("matchId")),
+                lookupPublicPlayerMatches())))
                 .map(this::asFullPublicMatch);
     }
 
     @Override
     public Observable<FullPublicMatch> findAllDescBelowId(long matchId) {
-        return Observable
-                .fromPublisher(publicMatches.aggregate(List.of(
-                        match(lte("matchId", matchId)),
-                        sort(Sorts.descending("matchId")),
-                        lookupPublicPlayerMatches())))
+        return Observable.fromPublisher(publicMatches.aggregate(List.of(
+                match(lt("matchId", matchId)),
+                sort(Sorts.descending("matchId")),
+                lookupPublicPlayerMatches())))
                 .map(this::asFullPublicMatch);
     }
 
@@ -73,6 +71,9 @@ public final class MongoFullPublicMatchRepository implements FullPublicMatchRepo
     private FullPublicMatch asFullPublicMatch(Document document) {
         return new FullPublicMatch(document.getLong("matchId"),
                 document.getBoolean("radiantWin"),
+                document.getInteger("duration"),
+                document.getInteger("lobbyType"),
+                document.getInteger("gameMode"),
                 document.getList("players", Document.class).stream()
                         .map(publicPlayerMatchMapper::asPublicPlayerMatch)
                         .collect(Collectors.toList()));

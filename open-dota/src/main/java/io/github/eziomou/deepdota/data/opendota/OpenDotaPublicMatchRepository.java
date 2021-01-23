@@ -29,7 +29,7 @@ public final class OpenDotaPublicMatchRepository implements PublicMatchReadRepos
 
     @Override
     public Observable<PublicMatch> findAllAscAboveId(long matchId) {
-        return openDota.explorer("SELECT match_id, radiant_win" +
+        return openDota.explorer("SELECT match_id, radiant_win, duration, lobby_type, game_mode" +
                 " FROM public_matches" +
                 " WHERE match_id > " + matchId +
                 " ORDER BY match_id ASC" +
@@ -46,7 +46,7 @@ public final class OpenDotaPublicMatchRepository implements PublicMatchReadRepos
 
     @Override
     public Observable<PublicMatch> findAllDescBelowId(long matchId) {
-        return openDota.explorer("SELECT match_id, radiant_win" +
+        return openDota.explorer("SELECT match_id, radiant_win, duration, lobby_type, game_mode" +
                 " FROM public_matches" +
                 " WHERE match_id < " + matchId +
                 " ORDER BY match_id DESC" +
@@ -57,7 +57,8 @@ public final class OpenDotaPublicMatchRepository implements PublicMatchReadRepos
     }
 
     private PublicMatch asPublicMatch(JsonNode node) {
-        return new PublicMatch(getId(node), node.get("radiant_win").asBoolean());
+        return new PublicMatch(getId(node), node.get("radiant_win").asBoolean(),
+                node.get("duration").asInt(), node.get("lobby_type").asInt(), node.get("game_mode").asInt());
     }
 
     private Long getId(JsonNode node) {

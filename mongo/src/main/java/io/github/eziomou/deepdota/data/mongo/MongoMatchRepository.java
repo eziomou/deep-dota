@@ -36,6 +36,9 @@ public final class MongoMatchRepository implements MatchWriteRepository, MatchRe
         Document document = new Document();
         document.put("matchId", match.getMatchId());
         document.put("radiantWin", match.isRadiantWin());
+        document.put("duration", match.getDuration());
+        document.put("lobbyType", match.getLobbyType());
+        document.put("gameMode", match.getGameMode());
         return document;
     }
 
@@ -55,7 +58,10 @@ public final class MongoMatchRepository implements MatchWriteRepository, MatchRe
 
     private Match asMatch(Document document) {
         return new Match(document.getLong("matchId"),
-                document.getBoolean("radiantWin"));
+                document.getBoolean("radiantWin"),
+                document.getInteger("duration"),
+                document.getInteger("lobbyType"),
+                document.getInteger("gameMode"));
     }
 
     @Override

@@ -38,6 +38,9 @@ public final class MongoPublicMatchRepository implements PublicMatchWriteReposit
         Document document = new Document();
         document.put("matchId", match.getMatchId());
         document.put("radiantWin", match.isRadiantWin());
+        document.put("duration", match.getDuration());
+        document.put("lobbyType", match.getLobbyType());
+        document.put("gameMode", match.getGameMode());
         return document;
     }
 
@@ -70,7 +73,9 @@ public final class MongoPublicMatchRepository implements PublicMatchWriteReposit
     }
 
     private PublicMatch asPublicMatch(Document document) {
-        return new PublicMatch(getId(document), document.getBoolean("radiantWin"));
+        return new PublicMatch(getId(document), document.getBoolean("radiantWin"),
+                document.getInteger("duration"), document.getInteger("lobbyType"),
+                document.getInteger("gameMode"));
     }
 
     private Long getId(Document document) {
