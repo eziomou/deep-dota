@@ -1,12 +1,7 @@
 package io.github.eziomou.deepdota.webapi;
 
-import com.mongodb.reactivestreams.client.MongoClient;
-import com.mongodb.reactivestreams.client.MongoClients;
-import com.mongodb.reactivestreams.client.MongoDatabase;
-import io.github.eziomou.core.Model10X10;
 import io.github.eziomou.core.Advantage;
-import io.github.eziomou.data.FullPublicMatchRepository;
-import io.github.eziomou.deepdota.data.mongo.MongoFullPublicMatchRepository;
+import io.github.eziomou.core.Model10X10;
 import io.github.eziomou.predict.Model10X10Predictor;
 import io.github.eziomou.predict.Predictor;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -64,21 +59,6 @@ class PredictionConfig {
     @Bean
     Model10X10 model(PredictionConfig config) throws IOException {
         return new Model10X10(MultiLayerNetwork.load(new File(config.modelPath), true));
-    }
-
-    @Bean
-    MongoClient mongoClient() {
-        return MongoClients.create();
-    }
-
-    @Bean
-    MongoDatabase mongoDatabase(MongoClient client) {
-        return client.getDatabase("dota");
-    }
-
-    @Bean
-    FullPublicMatchRepository fullPublicMatchRepository(MongoDatabase mongoDatabase) {
-        return new MongoFullPublicMatchRepository(mongoDatabase);
     }
 
     @Bean
