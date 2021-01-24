@@ -10,7 +10,7 @@
 
 Additional feature extraction was performed to create training/test datasets.
 
-First, **21,800,000** data records were used to create hero statistics contained in two **(130, 130)** matrices called
+First, **21,890,000** data records were used to create hero statistics contained in two **(130, 130)** matrices called
 the *synergy matrix*, and the *counter matrix*.
 
 #### Synergy matrix
@@ -37,9 +37,9 @@ The *counter matrix* informs how well a hero with a specific ID **(0-129)** work
 128 |       |       |       |       |       |
 129 |       |       |       |       |       |
 
-Then, **200,000** data records were used to create **180,000** trainings samples and **20,000** test samples.
+Then, **110,000** data records were used to create **9,000** trainings samples and **1,000** test samples.
 
-Each sample is created from the **(10, 10)** *synergy/counter matrix* and the *label*.
+Each sample is created from the **(10, 10)** *synergy/counter matrix*, and the *label*.
 
 #### Synergy/counter matrix
 
