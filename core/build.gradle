@@ -38,11 +38,22 @@ dependencies {
     implementation(group: 'org.nd4j', name: 'nd4j-native', version: nd4jVersion)
     implementation(group: 'org.nd4j', name: 'nd4j-native', version: nd4jVersion, classifier: platform)
 
+    implementation "org.bytedeco:javacpp:$javacppVersion"
     implementation "org.bytedeco:javacpp:$javacppVersion:$platform"
+
+    implementation "org.bytedeco:openblas:$openblasVersion"
     implementation "org.bytedeco:openblas:$openblasVersion:$platform"
+
+    implementation "org.bytedeco:opencv:$opencvVersion"
     implementation "org.bytedeco:opencv:$opencvVersion:$platform"
+
+    implementation "org.bytedeco:leptonica:$leptonicaVersion"
     implementation "org.bytedeco:leptonica:$leptonicaVersion:$platform"
+
+    implementation "org.bytedeco:hdf5:$hdf5Version"
     implementation "org.bytedeco:hdf5:$hdf5Version:$platform"
+
+    implementation "org.bytedeco:mkl:$mklVersion"
     implementation "org.bytedeco:mkl:$mklVersion:$platform"
 
     implementation 'ch.qos.logback:logback-classic:1.2.3'
