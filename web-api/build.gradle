@@ -1,17 +1,6 @@
 plugins {
-    id 'java'
     id 'org.springframework.boot' version '2.4.1'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-}
-
-sourceCompatibility = 11
-targetCompatibility = 11
-
-group 'io.github.eziomou'
-version '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
 }
 
 dependencies {
@@ -20,11 +9,4 @@ dependencies {
     implementation project(':mongo')
 
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-}
-
-test {
-    useJUnitPlatform()
 }

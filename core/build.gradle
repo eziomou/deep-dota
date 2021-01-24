@@ -2,16 +2,6 @@ plugins {
     id 'java-library'
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
-
-group 'io.github.eziomou'
-version '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     api 'io.reactivex.rxjava3:rxjava:3.0.9'
 
@@ -23,11 +13,4 @@ dependencies {
     api "org.deeplearning4j:arbiter-deeplearning4j:1.0.0-beta7"
 
     implementation 'ch.qos.logback:logback-classic:1.2.3'
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-}
-
-test {
-    useJUnitPlatform()
 }

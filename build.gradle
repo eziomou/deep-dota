@@ -1,25 +1,25 @@
-plugins {
-    id 'java'
-}
-
-sourceCompatibility = 11
-targetCompatibility = 11
-
 group 'io.github.eziomou'
 version '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-}
+subprojects {
+    apply plugin: 'java'
 
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-}
+    sourceCompatibility = 11
+    targetCompatibility = 11
 
-test {
-    useJUnitPlatform()
-}
+    group 'io.github.eziomou'
+    version '1.0-SNAPSHOT'
 
-task stage(dependsOn: ['build', 'clean'])
-build.mustRunAfter clean
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
