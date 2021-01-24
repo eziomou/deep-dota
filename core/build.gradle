@@ -13,7 +13,7 @@ ext {
     hdf5Version = '1.12.0-1.5.3'
     mklVersion = '2020.1-1.5.3'
 
-    platform = 'windows-x86_64'
+    platform = 'linux-x86_64'
 }
 
 dependencies {
