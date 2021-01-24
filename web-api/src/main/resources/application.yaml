@@ -1,8 +1,8 @@
 prediction:
-  model_path: src/main/resources/model.bin
-  statistics_path: src/main/resources/statistics.bin
-  synergy_matrix_path: src/main/resources/synergy.txt
-  counter_matrix_path: src/main/resources/counter.txt
+  model_path: web-api/src/main/resources/model.bin
+  statistics_path: web-api/src/main/resources/statistics.bin
+  synergy_matrix_path: web-api/src/main/resources/synergy.txt
+  counter_matrix_path: web-api/src/main/resources/counter.txt
 
 server:
   error:
