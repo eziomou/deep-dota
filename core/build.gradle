@@ -2,6 +2,9 @@ plugins {
     id 'java-library'
 }
 
+sourceCompatibility = 11
+targetCompatibility = 11
+
 group 'io.github.eziomou'
 version '1.0-SNAPSHOT'
 
